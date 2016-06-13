@@ -366,8 +366,12 @@ public class CreateProject implements ApplicationCommand {
                 "\n" + 
                 "test {\n" + 
                 "    systemProperties 'property': 'value'\n" + 
-                "}\n" + 
-                "\n" + 
+                "    testLogging {\n" + 
+                "        events \"passed\", \"skipped\", \"failed\", \"standardOut\", \"standardError\"\n" + 
+                "    }\n" + 
+                "    dependsOn \"cleanTest\"\n" + 
+                "}\n" +
+                "\n" +
                 "task wrapper(type: Wrapper) {\n" + 
                 "    gradleVersion = '2.10'\n" + 
                 "}\n" + 
