@@ -12,7 +12,7 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'Project creator',
                    'Implementation-Version': version,
-                   'Main-Class': 'org.voyager.janeway.ProjectCreator'
+                   'Main-Class': 'org.tfcode.project.ProjectCreator'
     }
     
     dependsOn configurations.compile

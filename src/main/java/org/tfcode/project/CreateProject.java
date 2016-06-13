@@ -36,6 +36,7 @@ public class CreateProject implements ApplicationCommand {
     protected String srcFolder       = "";
     protected String resourcesFolder = "";
     protected String packageFolder   = "";
+    protected String testFolder      = "";
     protected String mainClassFull   = "";
 
     @Override
@@ -49,6 +50,7 @@ public class CreateProject implements ApplicationCommand {
         createMainClass();
         createHelloWorld();
         createHelloWorldParameters();
+        createHelloWorldTest();
         createGitIgnore();
         createLogbackXml();
     }
@@ -73,7 +75,7 @@ public class CreateProject implements ApplicationCommand {
         logger.info("Creating " + resourcesFolder + " (if not exists)");
         FileUtils.forceMkdir(new File(resourcesFolder));
         
-        String testFolder = projectPath + File.separator + "src" + File.separator + "test" +
+        testFolder = projectPath + File.separator + "src" + File.separator + "test" +
                 File.separator + "java";
         logger.info("Creating " + testFolder + " (if not exists)");
         FileUtils.forceMkdir(new File(testFolder));
@@ -167,6 +169,26 @@ public class CreateProject implements ApplicationCommand {
                  "    }\n" +
                  "}\n"
                 );
+        fw.close();
+    }
+    
+    protected void createHelloWorldTest() throws Exception {
+        logger.info("Creating " + testFolder + File.separator + "HelloWorldTest.java");
+        FileWriter fw = new FileWriter(testFolder + File.separator +  "HelloWorldTest.java");
+        fw.write("package " + params.getPackage() + ";\n" + 
+                "\n" + 
+                "import static org.junit.Assert.*;\n" + 
+                "\n" + 
+                "import org.junit.Test;\n" + 
+                "\n" + 
+                "public class HelloWorldTest {\n" + 
+                "    @Test\n" + 
+                "    public void canConstructHelloWorld() {\n" + 
+                "        HelloWorld app = new HelloWorld();\n" + 
+                "        System.out.println(\"Test ......................\");\n" + 
+                "        assertEquals(app.getClass().toString(),HelloWorld.class.toString());\n" + 
+                "    }\n" + 
+                "}\n");
         fw.close();
     }
     
