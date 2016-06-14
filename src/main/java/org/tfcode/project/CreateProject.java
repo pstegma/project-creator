@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author me
  *
  */
+@Command(name="create",description="Create a project")
 public class CreateProject implements ApplicationCommand {
 
     private Logger logger = LoggerFactory.getLogger(CreateProject.class);
@@ -38,6 +39,7 @@ public class CreateProject implements ApplicationCommand {
     protected String packageFolder   = "";
     protected String testFolder      = "";
     protected String mainClassFull   = "";
+    
 
     @Override
     public void run(String[] args) throws Exception {
@@ -79,6 +81,9 @@ public class CreateProject implements ApplicationCommand {
                 File.separator + "java";
         logger.info("Creating " + testFolder + " (if not exists)");
         FileUtils.forceMkdir(new File(testFolder));
+        testFolder = testFolder + File.separator + pckg;
+        logger.info("Creating " + testFolder + " (if not exists)");
+        FileUtils.forceMkdir(new File(testFolder));
         
         String testResourcesFolder = projectPath + File.separator + "src" + File.separator + "test" +
                 File.separator + "resources";
@@ -117,16 +122,27 @@ public class CreateProject implements ApplicationCommand {
     protected void createGitIgnore() throws Exception {
         logger.info("Creating " + projectPath + File.separator + ".gitignore");
         FileWriter fw = new FileWriter(projectPath + File.separator + ".gitignore");
-        fw.write(".classpath\n" + 
-                ".gradle/\n" + 
+        fw.write("/data\n" + 
+                "/data/*\n" + 
+                "/build\n" + 
+                "/build/*\n" + 
+                ".classpath\n" + 
                 ".project\n" + 
-                ".settings/\n" + 
-                "bin/\n" + 
-                "build.gradle\n" + 
-                "build/\n" + 
-                "src/\n" + 
-                "data/\n" + 
-                "libs/\n");
+                ".settings\n" + 
+                ".gradle\n" + 
+                "*.class\n" + 
+                "\n" + 
+                "# Mobile Tools for Java (J2ME)\n" + 
+                ".mtj.tmp/\n" + 
+                "\n" + 
+                "# Package Files #\n" + 
+                "*.jar\n" + 
+                "*.war\n" + 
+                "*.ear\n" + 
+                "\n" + 
+                "# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml\n" + 
+                "hs_err_pid*\n" + 
+                "/bin/");
         fw.close();
     }
     
