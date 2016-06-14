@@ -237,6 +237,7 @@ public class CreateProject implements ApplicationCommand {
                 "import org.slf4j.LoggerFactory;\n" + 
                 "\n" + 
                 "\n" + 
+                "@Command(name=\"hello\",description=\"Example command class\")\n" +
                 "public class HelloWorld implements ApplicationCommand {\n" + 
                 "\n" + 
                 "    private Logger logger = LoggerFactory.getLogger(HelloWorld.class);\n" + 
