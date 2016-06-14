@@ -2,7 +2,6 @@ package org.tfcode.project;
 
 import java.io.File;
 import java.io.FileWriter;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +49,7 @@ public class CreateProject implements ApplicationCommand {
         createAppCommand();
         createCommandParameters();
         createMainClass();
+        createCommandAnnotation();
         createHelloWorld();
         createHelloWorldParameters();
         createHelloWorldTest();
@@ -146,6 +146,25 @@ public class CreateProject implements ApplicationCommand {
         fw.close();
     }
     
+    protected void createCommandAnnotation() throws Exception {
+        logger.info("Creating " + packageFolder + File.separator + "Command.java");
+        FileWriter fw = new FileWriter(packageFolder + File.separator +  "Command.java");
+        fw.write("package " + params.getPackage() + ";\n" + 
+                "\n" + 
+                "import java.lang.annotation.Retention;\n" + 
+                "import java.lang.annotation.RetentionPolicy;\n" + 
+                "import java.lang.annotation.ElementType;\n" + 
+                "import java.lang.annotation.Target;\n" + 
+                "\n" + 
+                "@Retention(RetentionPolicy.RUNTIME)\n" + 
+                "@Target({ElementType.TYPE})\n" + 
+                "public @interface Command {\n" + 
+                "    String name() default \"-\";\n" + 
+                "    String description() default \"-\";\n" + 
+                "}");
+        fw.close();
+    }
+    
     protected void createHelloWorldParameters() throws Exception {
         logger.info("Creating " + packageFolder + File.separator + "HelloWorldParameters.java");
         FileWriter fw = new FileWriter(packageFolder + File.separator +  "HelloWorldParameters.java");
@@ -239,59 +258,97 @@ public class CreateProject implements ApplicationCommand {
         FileWriter fw = new FileWriter(packageFolder + File.separator + params.getMainClass() + ".java");
         fw.write("package " + params.getPackage() + ";\n" + 
                 "\n" + 
-                "import java.util.Arrays;\n" + 
+                "import java.util.Arrays;\n" +
+                "import java.util.HashMap;\n" + 
+                "import java.util.Map;\n" + 
                 "\n" + 
                 "import org.slf4j.Logger;\n" + 
                 "import org.slf4j.LoggerFactory;\n" + 
                 "\n" + 
+                "import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;\n" +
+                "\n" +
                 "public class " + params.getMainClass() + " {\n" + 
                 "    public static final String USAGE = \"java -jar (...).jar <command> <args> ...\";\n" + 
                 "\n" + 
                 "    private Logger logger = LoggerFactory.getLogger(" + params.getMainClass() + ".class);\n" + 
                 "\n" + 
-                "    public static enum COMMAND {\n" + 
-                "        hello_world(\"Hello world\", HelloWorld.class);\n" + 
+                "private Map<String,AppCommand> commands;\n" + 
+                "    \n" + 
+                "    private class AppCommand {\n" + 
+                "        String   name;\n" + 
+                "        String   description;\n" + 
+                "        Class<?> cmd;\n" + 
+                "    }" +
+                "\n" +
+                "    public " + params.getMainClass() + "() throws Exception {\n" +
+                "        findCommands();\n" +
+                "    }\n" + 
                 "\n" + 
-                "        String description = \"\";\n" + 
-                "        Class<?> cmd = null;\n" + 
-                "\n" + 
-                "        private COMMAND(String desc, Class<?> cmd) {\n" + 
-                "            description = desc;\n" + 
-                "            this.cmd = cmd;\n" + 
+                "    @SuppressWarnings(\"unchecked\")\n" + 
+                "    private void findCommands() throws Exception {\n" + 
+                "        FastClasspathScanner scanner = new FastClasspathScanner(\"" + params.getPackage() + "\");\n" + 
+                "        scanner.scan();\n" + 
+                "        Command    annotation;\n" + 
+                "        boolean    isCommand;\n" + 
+                "        AppCommand cmd;\n" + 
+                "        commands = new HashMap<>();\n" + 
+                "        for (String cl : scanner.getNamesOfAllClasses()) {\n" + 
+                "            //logger.info(cl);\n" + 
+                "            Class c = Class.forName(cl);\n" + 
+                "            if (c.getAnnotation(Command.class) != null) {\n" + 
+                "                isCommand = false;\n" + 
+                "                for (Class ic : Arrays.asList(c.getInterfaces())) {\n" + 
+                "                    if (ic.getName().equals(\"" + params.getPackage() + ".ApplicationCommand\")) {\n" + 
+                "                        logger.info(ic.toString());\n" + 
+                "                        isCommand = true;\n" + 
+                "                    }\n" + 
+                "                }\n" + 
+                "                if (!isCommand) continue;\n" + 
+                "                annotation = (Command)c.getAnnotation(Command.class);\n" + 
+                "                if (commands.containsKey(annotation.name())) {\n" + 
+                "                    throw new UnsupportedOperationException(\"Command name \" +\n" + 
+                "                              annotation.name() +\n" + 
+                "                              \" already exists\");\n" + 
+                "                }\n" + 
+                "                cmd = new AppCommand();\n" + 
+                "                cmd.name        = annotation.name();\n" + 
+                "                cmd.description = annotation.description();\n" + 
+                "                cmd.cmd         = c;\n" + 
+                "                commands.put(cmd.name, cmd);\n" + 
+                "                logger.info(annotation.name());\n" + 
+                "                logger.info(annotation.description());\n" + 
+                "                \n" + 
+                "            }\n" + 
                 "        }\n" + 
-                "    }\n" + 
-                "\n" + 
-                "    public " + params.getMainClass() + "() {\n" + 
-                "    }\n" + 
-                "\n" + 
-                "    public static void printHelp() {\n" + 
+                "    }\n" +
+                "\n" +
+                "    public void printHelp() {\n" + 
                 "        System.out.println(\"\\nUsage: \" + USAGE + \"\\n\\nAvailable commands:\\n\");\n" + 
-                "\n" + 
-                "        for (COMMAND cmd : COMMAND.values()) {\n" + 
-                "            System.out.println(cmd.toString() + \"  -  \" + cmd.description);\n" + 
+                "        \n" + 
+                "        for (String cmd : commands.keySet()) {\n" + 
+                "            System.out.println(cmd + \"  -  \" + commands.get(cmd).description);\n" + 
                 "        }\n" + 
-                "\n" + 
+                "        \n" + 
                 "        System.out.println(\"\\nFor more info about each command try (java -jar ...) COMMAND -h\\n\");\n" + 
                 "        System.out.println(\"\\n---------------------------\\n\\n\");\n" + 
-                "    }\n" + 
+                "    }" +
                 "\n" + 
                 "    public static void main(String[] args) throws Exception {\n" + 
+                "        " + params.getMainClass() + " app = new " + params.getMainClass() + "();\n" + 
                 "        if (args.length < 1) {\n" + 
-                "            printHelp();\n" + 
+                "            app.printHelp();\n" + 
                 "            return;\n" + 
                 "        }\n" + 
-                "        " + params.getMainClass() + " app = new " + params.getMainClass() + "();\n" + 
-                "\n" + 
+                "        \n" + 
                 "        String cmd = args[0];\n" + 
                 "        String[] cargs = (args.length > 1) ? Arrays.copyOfRange(args, 1, args.length) : new String[] {};\n" + 
-                "        COMMAND com = null;\n" + 
-                "\n" + 
-                "        try {\n" + 
-                "            com = COMMAND.valueOf(cmd);\n" + 
-                "        } catch (Exception e) {\n" + 
-                "            throw e;\n" + 
-                "        }\n" + 
-                "\n" + 
+                "        AppCommand com = app.commands.get(cmd);\n" + 
+                "        \n" + 
+                "        if (com == null) {\n" + 
+                "            app.printHelp();\n" + 
+                "            throw new IllegalArgumentException(\"Unknown command \" + cmd);\n" + 
+                "        }\n" +
+                "        \n" +
                 "        app.logger.info(\"Running command \" + cmd);\n" + 
                 "        ((ApplicationCommand) com.cmd.newInstance()).run(cargs);\n" + 
                 "    }\n" + 
@@ -383,7 +440,8 @@ public class CreateProject implements ApplicationCommand {
                 "            'commons-io:commons-io:2.4',\n" + 
                 "            'ch.qos.logback:logback-classic:1.1.3',\n" + 
                 "            'io.vertx:vertx-core:3.2.0',\n" + 
-                "            'io.vertx:vertx-web:3.2.0'\n" + 
+                "            'io.vertx:vertx-web:3.2.0',\n" +
+                "            'io.github.lukehutch:fast-classpath-scanner:1.9.18'\n" +
                 "    testCompile group: 'junit', name: 'junit', version: '4.+'\n" + 
                 "}\n" + 
                 "\n" + 
