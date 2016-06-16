@@ -16,10 +16,11 @@ public class CreateProjectParameters extends AbstractCommandParameters {
     protected String     configFile = "";
     protected JsonObject config     = null;
     
-    protected String projectName = "";
-    protected String outfolder   = ".";
-    protected String mainClass   = "MainClass";
-    protected String packageName = "org.template";
+    protected String  projectName   = "";
+    protected String  outfolder     = ".";
+    protected String  mainClass     = "MainClass";
+    protected String  packageName   = "org.template";
+    protected boolean withWebserver = false;
     
 
     public CreateProjectParameters() {
@@ -41,6 +42,8 @@ public class CreateProjectParameters extends AbstractCommandParameters {
     public String getOutputFolder() { return outfolder; }
     public String getMainClass() { return mainClass; }
     public String getPackage() { return packageName; }
+    
+    public boolean isWithWebserver() { return withWebserver; }
     
     @Override
     protected void defineOptions() {
@@ -80,6 +83,11 @@ public class CreateProjectParameters extends AbstractCommandParameters {
         setOutputFolder();
         setPackage();
         setMainClass();
+        setWithWebserver();
+    }
+    
+    protected void setWithWebserver() {
+        withWebserver = config.getBoolean("with_server", false);
     }
     
     protected void setProjectName() throws Exception {

@@ -1,7 +1,12 @@
 package org.tfcode.project;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +21,8 @@ import org.slf4j.LoggerFactory;
      "project_name": "ExampleProject",
      "out_folder":   "test_project",
      "main_class":   "MainApp",
-     "package":      "org.template"
+     "package":      "org.template",
+     "with_server":  true
    }
  * </pre>
  * </code>
@@ -55,6 +61,10 @@ public class CreateProject implements ApplicationCommand {
         createHelloWorldTest();
         createGitIgnore();
         createLogbackXml();
+        
+        if (params.isWithWebserver()) {
+            createWebserver();
+        }
     }
 
     protected void setPaths() throws Exception {
@@ -91,6 +101,29 @@ public class CreateProject implements ApplicationCommand {
         FileUtils.forceMkdir(new File(testResourcesFolder));
   
         mainClassFull = params.getPackage() + "." + params.getMainClass();
+    }
+    
+    protected void createWebserver() throws Exception {
+        logger.info("Creating webserver");
+        JarFile jf = new JarFile(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+        copyClassFromJar(jf,"web/WebServer.java",packageFolder);
+        jf.close();
+    }
+    
+    protected void copyClassFromJar(JarFile jf, String file, String toFolder) throws Exception {
+        JarEntry entry = jf.getJarEntry(file);
+        logger.info("Copying from jar: " + entry.getName());
+        BufferedReader br = new BufferedReader(new InputStreamReader(jf.getInputStream(entry)));
+        StringBuilder  sb = new StringBuilder();
+        String line;
+        while ((line = br.readLine()) != null) {
+            line = line.replace("$package$", params.getPackage());
+            sb.append(line + "\n");
+        }
+        File f = new File(file);
+        FileWriter fw = new FileWriter(toFolder + File.separator + f.getName());
+        fw.write(sb.toString());
+        fw.close();
     }
     
     protected void createLogbackXml() throws Exception {
