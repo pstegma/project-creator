@@ -441,6 +441,7 @@ public class CreateProject implements ApplicationCommand {
         FileWriter fw = new FileWriter(projectPath + File.separator + "build.gradle");
         fw.write("apply plugin: 'java'\n" + 
                 "apply plugin: 'eclipse'\n" + 
+        		"apply plugin: 'jacoco'\n" +
                 "\n" + 
                 "sourceCompatibility = 1.8\n" + 
                 "targetCompatibility = 1.8\n" + 
@@ -492,13 +493,38 @@ public class CreateProject implements ApplicationCommand {
                 "        }\n" + 
                 "    }\n" + 
                 "}\n" + 
+                "\n" +
+                "task copyJavaDoc(type: Copy, dependsOn: javadoc) {\n" + 
+                "    def sourceDir = new File(project.projectDir, '/build/docs/javadoc')\n" + 
+                "    def destDir   = new File(project.projectDir, '/javadoc')\n" + 
+                "    \n" + 
+                "    delete destDir\n" + 
+                "    \n" + 
+                "    from sourceDir \n" + 
+                "    into destDir \n" + 
+                "    include('**/*')\n" + 
+                "}\n" + 
                 "\n" + 
+                "\n" + 
+                "jacoco {\n" + 
+                "    toolVersion = \"0.7.6+\"\n" + 
+                "}\n" + 
+                "\n" + 
+                "jacocoTestReport {\n" + 
+                "    reports {\n" + 
+                "        xml.enabled false\n" + 
+                "        csv.enabled false\n" + 
+                "        html.enabled true\n" + 
+                "        html.destination \"${buildDir}/jacocoHtml\"\n" + 
+                "    }\n" + 
+                "}\n" +
                 "\n" + 
                 "test {\n" + 
                 "    systemProperties 'property': 'value'\n" + 
                 "    testLogging {\n" + 
                 "        events \"passed\", \"skipped\", \"failed\", \"standardOut\", \"standardError\"\n" + 
                 "    }\n" + 
+                "    finalizedBy jacocoTestReport\n" + 
                 "    dependsOn \"cleanTest\"\n" + 
                 "}\n" +
                 "\n" +
