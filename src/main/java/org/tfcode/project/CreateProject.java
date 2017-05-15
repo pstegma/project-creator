@@ -495,7 +495,7 @@ public class CreateProject implements ApplicationCommand {
                 "        }\n" + 
                 "    }\n" + 
                 "}\n" + 
-                "\n" + 
+                "\n" +
                 "task copyJavaDoc(type: Copy, dependsOn: javadoc) {\n" + 
                 "    def sourceDir = new File(project.projectDir, '/build/docs/javadoc')\n" + 
                 "    def destDir   = new File(project.projectDir, '/javadoc')\n" + 
@@ -506,6 +506,7 @@ public class CreateProject implements ApplicationCommand {
                 "    into destDir \n" + 
                 "    include('**/*')\n" + 
                 "}\n" + 
+                "\n" + 
                 "\n" + 
                 "jacoco {\n" + 
                 "    toolVersion = \"0.7.6+\"\n" + 
@@ -518,14 +519,14 @@ public class CreateProject implements ApplicationCommand {
                 "        html.enabled true\n" + 
                 "        html.destination \"${buildDir}/jacocoHtml\"\n" + 
                 "    }\n" + 
-                "}\n" + 
+                "}\n" +
                 "\n\n" + 
                 "test {\n" + 
                 "    systemProperties 'property': 'value'\n" + 
                 "    testLogging {\n" + 
                 "        events \"passed\", \"skipped\", \"failed\", \"standardOut\", \"standardError\"\n" + 
                 "    }\n" + 
-                "    finalizedBy jacocoTestReport" +
+                "    finalizedBy jacocoTestReport\n" + 
                 "    dependsOn \"cleanTest\"\n" + 
                 "}\n" +
                 "\n" +
