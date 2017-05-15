@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 
 public class ProjectCreator {
     public static final String USAGE = "java -jar project-creator(...).jar <command> <args> ...";
@@ -30,12 +31,13 @@ public class ProjectCreator {
     @SuppressWarnings("unchecked")
     private void findCommands() throws Exception {
         FastClasspathScanner scanner = new FastClasspathScanner("org.tfcode");
+        ScanResult res = scanner.scan();
         scanner.scan();
         Command    annotation;
         boolean    isCommand;
         AppCommand cmd;
         commands = new HashMap<>();
-        for (String cl : scanner.getNamesOfAllClasses()) {
+        for (String cl : res.getNamesOfAllClasses()) {
             //logger.info(cl);
             Class c = Class.forName(cl);
             if (c.getAnnotation(Command.class) != null) {
