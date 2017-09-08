@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -308,8 +310,17 @@ public class CreateProject implements ApplicationCommand {
                 "\n" + 
                 "    private Logger logger = LoggerFactory.getLogger(" + params.getMainClass() + ".class);\n" + 
                 "\n" + 
-                "private Map<String,AppCommand> commands;\n" + 
+                "    private Map<String,AppCommand> commands;\n" +
+                "\n" +
+                "    public static final Set<String> HELP_TAGS = new HashSet<>();\n" + 
                 "    \n" + 
+                "    static {\n" + 
+                "        HELP_TAGS.add(\"-h\");\n" + 
+                "        HELP_TAGS.add(\"--h\");\n" + 
+                "        HELP_TAGS.add(\"help\");\n" + 
+                "        HELP_TAGS.add(\"-help\");\n" + 
+                "        HELP_TAGS.add(\"--help\");\n" + 
+                "    }\n\n" +
                 "    private class AppCommand {\n" + 
                 "        String   name;\n" + 
                 "        String   description;\n" + 
@@ -368,7 +379,7 @@ public class CreateProject implements ApplicationCommand {
                 "        System.out.println(\"\\nFor more info about each command try (java -jar ...) COMMAND -h\\n\");\n" + 
                 "        System.out.println(\"\\n---------------------------\\n\\n\");\n" + 
                 "    }" +
-                "\n" + 
+                "\n\n" + 
                 "    public static void main(String[] args) throws Exception {\n" + 
                 "        " + params.getMainClass() + " app = new " + params.getMainClass() + "();\n" + 
                 "        if (args.length < 1) {\n" + 
@@ -376,7 +387,11 @@ public class CreateProject implements ApplicationCommand {
                 "            return;\n" + 
                 "        }\n" + 
                 "        \n" + 
-                "        String cmd = args[0];\n" + 
+                "        String cmd = args[0];\n\n" +
+                "        if (HELP_TAGS.contains(cmd)) {\n" + 
+                "            app.printHelp();\n" + 
+                "            System.exit(0);\n" + 
+                "        }\n\n" +
                 "        String[] cargs = (args.length > 1) ? Arrays.copyOfRange(args, 1, args.length) : new String[] {};\n" + 
                 "        AppCommand com = app.commands.get(cmd);\n" + 
                 "        \n" + 
