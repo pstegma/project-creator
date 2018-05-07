@@ -297,7 +297,9 @@ public class CreateProject implements ApplicationCommand {
                 "\n" + 
                 "import java.util.Arrays;\n" +
                 "import java.util.HashMap;\n" + 
+                "import java.util.HashSet;\n" + 
                 "import java.util.Map;\n" + 
+                "import java.util.Set;\n" + 
                 "\n" + 
                 "import org.slf4j.Logger;\n" + 
                 "import org.slf4j.LoggerFactory;\n" + 
@@ -488,12 +490,12 @@ public class CreateProject implements ApplicationCommand {
                 "\n" + 
                 "\n" + 
                 "dependencies {\n" + 
-                "    compile 'commons-cli:commons-cli:1.3.1',\n" + 
-                "            'commons-io:commons-io:2.5',\n" + 
+                "    compile 'commons-cli:commons-cli:1.4',\n" + 
+                "            'commons-io:commons-io:2.6',\n" + 
                 "            'ch.qos.logback:logback-classic:1.2.3',\n" + 
-                "            'io.vertx:vertx-core:3.4.1',\n" + 
-                "            'io.vertx:vertx-web:3.4.1',\n" + 
-                "            'io.github.lukehutch:fast-classpath-scanner:2.0.19'\n" + 
+                "            'io.vertx:vertx-core:3.5.1',\n" + 
+                "            'io.vertx:vertx-web:3.5.1',\n" + 
+                "            'io.github.lukehutch:fast-classpath-scanner:2.20.0'\n" + 
                 "    testCompile group: 'junit', name: 'junit', version: '4.+'\n" + 
                 "}\n" + 
                 "\n" + 
